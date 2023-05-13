@@ -408,7 +408,7 @@ with st.container():
         st.plotly_chart(fig, use_container_width=True)
 
 st.write('---')
-st.header('Source data')
+st.header('Исходные данные. Суммы указаны в тыс. рублей')
 
 df.loc['Column_Total']= df.sum(numeric_only=True, axis=0)
 st.write(df)
