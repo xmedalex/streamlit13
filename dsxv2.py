@@ -1,3 +1,5 @@
+import io
+
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -404,3 +406,25 @@ with st.container():
             yaxis_range=[min_a, max_a],
             showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
+
+st.write('---')
+st.header('Source data')
+
+df.loc['Column_Total']= df.sum(numeric_only=True, axis=0)
+st.write(df)
+
+buffer = io.BytesIO()
+
+with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+    # Write each dataframe to a different worksheet.
+    df.to_excel(writer, sheet_name='Sheet1')
+
+    # Close the Pandas Excel writer and output the Excel file to the buffer
+    writer.close()
+
+    st.download_button(
+        label="Download Excel worksheets",
+        data=buffer,
+        file_name="Model.xlsx",
+        mime="application/vnd.ms-excel"
+    )
