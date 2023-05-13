@@ -388,7 +388,7 @@ with st.container():
 
     with col2:
         profit_list = df['profit'].tolist()
-        st.subheader("По месяцам")
+        st.subheader("Выручка/прибыль по месяцам")
         x = month_name
 
         fig = go.Figure(go.Bar(x=x, y=profit_list, name='Profit'))
