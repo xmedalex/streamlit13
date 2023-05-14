@@ -15,8 +15,8 @@ ftes_salary_conditions = {
         'fullname': 'Medical Representative',
         'fullname_rus': 'Медицинский представитель',
         'shortname': 'mr',
-        'bonus_quarter': 25,
-        'bonus_year': 35,
+        'bonus_quarter': 20,
+        'bonus_year': 30,
         'compensation': 25000,
     },
     'ProdMan': {
@@ -30,14 +30,14 @@ ftes_salary_conditions = {
         'compensation': 15000,
     },
     'ComDir': {
-        'salary': 300000,
+        'salary': 200000,
         'tax_index': 1,
         'fullname': 'Commercial Director',
         'fullname_rus': 'Коммерческий директор',
         'shortname': 'cd',
-        'bonus_quarter': 50,
-        'bonus_year': 100,
-        'compensation': 50000,
+        'bonus_quarter': 1,
+        'bonus_year': 1,
+        'compensation': 10000,
     },
 }
 
@@ -70,7 +70,7 @@ with drug_section:
                     help=tm.pack_price_pharmacy_help,
                     key='pack_price_pharmacy')
 
-    own_to_pharm_price = 3500
+    own_to_pharm_price = 3750
     if 'pack_price_owner' in st.session_state:
         own_to_pharm_price = (1 + st.session_state.pack_price_pharmacy_change / 100) * own_to_pharm_price
     st.number_input(label=tm.pack_price_owner_label,
@@ -135,14 +135,16 @@ with fte_section:
     st.header('FTE')
     with st.expander(label='Выберите ставки', expanded=False):
         options = (i for i in ftes_salary_conditions)
-        ftes = st.multiselect(label='Выбрано', options=(i for i in ftes_salary_conditions),
-                              default=(i for i in ftes_salary_conditions), key='chosen_fte')
+        ftes = st.multiselect(label='Выбрано',
+                              options=(i for i in ftes_salary_conditions),
+                              default=(i for i in ftes_salary_conditions if i != 'ProdMan'),
+                              key='chosen_fte')
     for num, i in enumerate(st.session_state.chosen_fte):
         create_fte_card(ftes_salary_conditions[i])
     with st.container():
         col_a, col_b, col_c = st.columns([1, 10, 1])
         with col_b:
-            st.slider("Кол-во медицинских представителей", 1, 9, 6, 1,
+            st.slider("Кол-во медицинских представителей", 1, 9, 1, 1,
                       key='medreps_number',
                       help='Выберите количество медицинских представителей в штате')
 
@@ -180,7 +182,7 @@ with customer_section:
         with col2:
             counts_sum = districts.loc[
                 districts['districts'].isin(st.session_state.selected_districts), 'accounts_number'].sum()
-            st.slider("Активных учреждений в промоции", 1, int(counts_sum), int((counts_sum * 0.8)),
+            st.slider("Активных учреждений в промоции", 1, int(counts_sum), int((counts_sum * 0.1)),
                       key='active_accounts_number',
                       help='Выберите из общего количества учреждений те, которые будут находиться в активной работе')
 
@@ -209,12 +211,12 @@ with customer_section:
         col1, col2 = st.columns(2)
         with col1:
             st.slider(label="Упак. в нед. в одном ЛПУ",
-                      min_value=1, value=3, step=1, max_value=24,
+                      min_value=1, value=4, step=1, max_value=24,
                       key='patients_per_one_account_per_week',
                       help='В одном ЛПУ 8 врачей в две смены (4 по 2), часть из них работает в обе смены.'
                            'Среднее количество врачей для расчета - 6.')
         with col2:
-            st.slider("Прирост упак. (мес-к-мес)", min_value=0, value=15, max_value=50,
+            st.slider("Прирост упак. (мес-к-мес)", min_value=0, value=20, max_value=50,
                       key='pack_growth',
                       help='Расчетный прирост продаж со второго квартала, каждый последующий месяц',
                       format='%d%%')
@@ -333,9 +335,11 @@ df = pd.DataFrame({'date': pd.date_range(start='1/1/2024', freq='M', periods=12)
                    'supporting_opex': transform_list(supporting_OPEX_list)}
                   )
 
+df['date'] = df['date'].dt.date
 df['expenses'] = df['COGS'] + df['salary'] + df['compensation'] + df['bonus_quarter'] \
                  + df['bonus_year'] + df['initial_event'] + df['agency_fee'] + df['supporting_opex']
 df['profit'] = df['revenue'] + df['expenses']
+df['rolling_profit'] = df['profit'].cumsum()
 
 packs_sum = df['packs'].sum()
 revenue_sum = df['revenue'].sum()
@@ -410,7 +414,13 @@ with st.container():
 st.write('---')
 st.header('Исходные данные. Суммы указаны в тыс. рублей')
 
-df.loc['Column_Total']= df.sum(numeric_only=True, axis=0)
+# df.loc['Column_Total']= df.sum(numeric_only=True, axis=0)
+
+
+df.loc[df.shape[0]] = [np.nan for col_num in range(1,df.shape[1]+1)]
+df.iloc[df.shape[0]-1,[1,2,3,4,5,6,7,8,9,10,11,12]] = df.iloc[:,[1,2,3,4,5,6,7,8,9,10,11,12]].sum(axis=0)
+# df.at[12, 'rolling_profit'] = profit_sum
+
 st.write(df)
 
 buffer = io.BytesIO()
