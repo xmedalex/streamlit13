@@ -214,9 +214,10 @@ with customer_section:
                       min_value=1, value=4, step=1, max_value=24,
                       key='patients_per_one_account_per_week',
                       help='В одном ЛПУ 8 врачей в две смены (4 по 2), часть из них работает в обе смены.'
-                           'Среднее количество врачей для расчета - 6.')
+                           'Среднее количество врачей для расчета - 6. В первый месяц - 25% от выбранного кол-ва, '
+                           'второй - 50%, третий - 75%. Со второго квартала - 100% от планового кол-ва.')
         with col2:
-            st.slider("Прирост упак. (мес-к-мес)", min_value=0, value=20, max_value=50,
+            st.slider("Прирост упак. (мес-к-мес)", min_value=0, value=15, max_value=50,
                       key='pack_growth',
                       help='Расчетный прирост продаж со второго квартала, каждый последующий месяц',
                       format='%d%%')
@@ -430,11 +431,11 @@ with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
     df.to_excel(writer, sheet_name='Sheet1')
 
     # Close the Pandas Excel writer and output the Excel file to the buffer
-    writer.close()
+    # writer.close()
 
-    st.download_button(
-        label="Download Excel worksheets",
-        data=buffer,
-        file_name="Model.xlsx",
-        mime="application/vnd.ms-excel"
-    )
+st.download_button(
+    label="Download Excel worksheets",
+    data=buffer,
+    file_name="Model.xlsx",
+    mime="application/vnd.ms-excel"
+)
