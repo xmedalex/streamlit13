@@ -420,7 +420,7 @@ st.header('Исходные данные. Суммы указаны в тыс. �
 
 df.loc[df.shape[0]] = [np.nan for col_num in range(1,df.shape[1]+1)]
 df.iloc[df.shape[0]-1,[1,2,3,4,5,6,7,8,9,10,11,12]] = df.iloc[:,[1,2,3,4,5,6,7,8,9,10,11,12]].sum(axis=0)
-# df.at[12, 'rolling_profit'] = profit_sum
+df.at[12, 'rolling_profit'] = ''
 
 st.write(df)
 
