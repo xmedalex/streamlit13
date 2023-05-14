@@ -70,7 +70,7 @@ with drug_section:
                     help=tm.pack_price_pharmacy_help,
                     key='pack_price_pharmacy')
 
-    own_to_pharm_price = 3750
+    own_to_pharm_price = 3500
     if 'pack_price_owner' in st.session_state:
         own_to_pharm_price = (1 + st.session_state.pack_price_pharmacy_change / 100) * own_to_pharm_price
     st.number_input(label=tm.pack_price_owner_label,
@@ -200,11 +200,11 @@ with customer_section:
                 st.number_input(label='Поддержание', min_value=1, value=30000, step=1000,
                                 key='supporting_OPEX',
                                 help='OPEX поддерживающих активностей, руб. с НДС. Каждый квартал Q2-Q4, 3 в год')
-    with st.expander('**Комиссия агентства**'):
+    with st.expander('**Поддерживающие расходы**'):
         with st.container():
             col1, col2, col3 = st.columns([1, 8, 1])
             with col2:
-                st.slider(label='Комиссия, %', min_value=1, max_value=30, value=10, step=1,
+                st.slider(label='Поддержание, %', min_value=1, max_value=30, value=10, step=1,
                           format='%d%%', key='agency_fee')
     # sliders with pack per account and pack growth
     with st.container():
@@ -331,14 +331,14 @@ df = pd.DataFrame({'date': pd.date_range(start='1/1/2024', freq='M', periods=12)
                    'compensation': transform_list(compensation_arr),
                    'bonus_quarter': transform_list(bonus_quarter_arr),
                    'bonus_year': transform_list(bonus_year_arr),
-                   'agency_fee': transform_list(agency_fee_list),
+                   'support_fee': transform_list(agency_fee_list),
                    'initial_event': transform_list(initial_event_OPEX_list),
                    'supporting_opex': transform_list(supporting_OPEX_list)}
                   )
 
 df['date'] = df['date'].dt.date
 df['expenses'] = df['COGS'] + df['salary'] + df['compensation'] + df['bonus_quarter'] \
-                 + df['bonus_year'] + df['initial_event'] + df['agency_fee'] + df['supporting_opex']
+                 + df['bonus_year'] + df['initial_event'] + df['support_fee'] + df['supporting_opex']
 df['profit'] = df['revenue'] + df['expenses']
 df['rolling_profit'] = df['profit'].cumsum()
 
@@ -349,7 +349,7 @@ salary_sum = df['salary'].sum()
 compensation_sum = df['compensation'].sum()
 bonus_quarter_sum = df['bonus_quarter'].sum()
 bonus_year_sum = df['bonus_year'].sum()
-agency_fee_sum = df['agency_fee'].sum()
+agency_fee_sum = df['support_fee'].sum()
 initial_event_sum = df['initial_event'].sum()
 supporting_opex_sum = df['supporting_opex'].sum()
 profit_sum = df['profit'].sum()
@@ -367,7 +367,7 @@ with st.container():
                      ],
             x=['revenue',
                'COGS', 'salary', 'compensation', 'bonus_quarter', 'bonus_year',
-               'agency_fee', 'initial_event', 'supporting_opex', 'profit'],
+               'support_fee', 'initial_event', 'supporting_opex', 'profit'],
             textposition="outside",
             text=[revenue_sum, COGS_sum, salary_sum, compensation_sum, bonus_quarter_sum, bonus_year_sum,
                   agency_fee_sum, initial_event_sum, supporting_opex_sum, profit_sum],
