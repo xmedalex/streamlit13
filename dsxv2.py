@@ -327,17 +327,17 @@ df = pd.DataFrame({'date': pd.date_range(start='1/1/2024', freq='M', periods=12)
                    'revenue': transform_list(revenue_without_VAT_list, reverse_sign=False),
                    'COGS': transform_list(cogs_without_VAT_list),
                    'salary': transform_list(salary_arr),
-                   'compensation': transform_list(compensation_arr),
-                   'bonus_quarter': transform_list(bonus_quarter_arr),
-                   'bonus_year': transform_list(bonus_year_arr),
+                   'repr_exp': transform_list(compensation_arr),
+                   'bonus_Q': transform_list(bonus_quarter_arr),
+                   'bonus_Y': transform_list(bonus_year_arr),
                    'support_fee': transform_list(agency_fee_list),
                    'initial_event': transform_list(initial_event_OPEX_list),
                    'supporting_opex': transform_list(supporting_OPEX_list)}
                   )
 
 df['date'] = df['date'].dt.date
-df['expenses'] = df['COGS'] + df['salary'] + df['compensation'] + df['bonus_quarter'] \
-                 + df['bonus_year'] + df['initial_event'] + df['support_fee'] + df['supporting_opex']
+df['expenses'] = df['COGS'] + df['salary'] + df['repr_exp'] + df['bonus_Q'] \
+                 + df['bonus_Y'] + df['initial_event'] + df['support_fee'] + df['supporting_opex']
 df['profit'] = df['revenue'] + df['expenses']
 df['rolling_profit'] = df['profit'].cumsum()
 
@@ -345,9 +345,9 @@ packs_sum = df['packs'].sum()
 revenue_sum = df['revenue'].sum()
 COGS_sum = df['COGS'].sum()
 salary_sum = df['salary'].sum()
-compensation_sum = df['compensation'].sum()
-bonus_quarter_sum = df['bonus_quarter'].sum()
-bonus_year_sum = df['bonus_year'].sum()
+compensation_sum = df['repr_exp'].sum()
+bonus_quarter_sum = df['bonus_Q'].sum()
+bonus_year_sum = df['bonus_Y'].sum()
 agency_fee_sum = df['support_fee'].sum()
 initial_event_sum = df['initial_event'].sum()
 supporting_opex_sum = df['supporting_opex'].sum()
@@ -365,7 +365,7 @@ with st.container():
                      "total",
                      ],
             x=['revenue',
-               'COGS', 'salary', 'compensation', 'bonus_quarter', 'bonus_year',
+               'COGS', 'salary', 'repr_exp', 'bonus_Q', 'bonus_Y',
                'support_fee', 'initial_event', 'supporting_opex', 'profit'],
             textposition="outside",
             text=[revenue_sum, COGS_sum, salary_sum, compensation_sum, bonus_quarter_sum, bonus_year_sum,
@@ -421,6 +421,7 @@ df.loc[df.shape[0]] = [np.nan for col_num in range(1, df.shape[1] + 1)]
 df.iloc[df.shape[0] - 1,
         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]] = df.iloc[:, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]].sum(axis=0)
 df.at[12, 'rolling_profit'] = ''
+df.at[12, 'date'] = 'Итого'
 df = df.set_index('date')
 # df.columns = ['дата', 'выручка', 'COGS', 'оклад', 'предст.расх.', 'бонус кв.', 'бонус год',
 #                'поддерж. OPEX', 'initial_event', 'supporting_opex', 'прибыль', 'прибыль_']
