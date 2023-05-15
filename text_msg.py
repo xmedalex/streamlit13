@@ -26,7 +26,7 @@ class InputTextRus:
     salary_label: str = 'Оклад'
     salary_help: str = 'Оклад'
     compensation_label: str = 'Представ. расходы'
-    compensation_help: str = 'Компенсация ежемесячных расходов'
+    compensation_help: str = 'Компенсируемые ежемесячные расходы'
     quarter_bonus_label: str = 'Q бонус, %'
     quarter_bonus_help: str = 'Квартальный бонус'
     year_bonus_label: str = 'Y бонус, %'

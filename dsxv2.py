@@ -7,7 +7,6 @@ import plotly.graph_objects as go
 
 from text_msg import InputTextRus
 
-
 ftes_salary_conditions = {
     'MedRep': {
         'salary': 100000,
@@ -20,24 +19,24 @@ ftes_salary_conditions = {
         'compensation': 25000,
     },
     'ProdMan': {
-        'salary': 150000,
+        'salary': 1,
         'tax_index': 0,
         'fullname': 'Product Manager',
         'fullname_rus': 'Продакт Менеджер',
         'shortname': 'pm',
-        'bonus_quarter': 15,
-        'bonus_year': 20,
-        'compensation': 15000,
+        'bonus_quarter': 1,
+        'bonus_year': 1,
+        'compensation': 1,
     },
     'ComDir': {
-        'salary': 200000,
-        'tax_index': 1,
+        'salary': 1,
+        'tax_index': 0,
         'fullname': 'Commercial Director',
         'fullname_rus': 'Коммерческий директор',
         'shortname': 'cd',
         'bonus_quarter': 1,
         'bonus_year': 1,
-        'compensation': 10000,
+        'compensation': 1,
     },
 }
 
@@ -137,7 +136,7 @@ with fte_section:
         options = (i for i in ftes_salary_conditions)
         ftes = st.multiselect(label='Выбрано',
                               options=(i for i in ftes_salary_conditions),
-                              default=(i for i in ftes_salary_conditions if i != 'ProdMan'),
+                              default=(i for i in ftes_salary_conditions if (i != 'ProdMan' and i != 'ComDir')),
                               key='chosen_fte')
     for num, i in enumerate(st.session_state.chosen_fte):
         create_fte_card(ftes_salary_conditions[i])
@@ -217,7 +216,7 @@ with customer_section:
                            'Среднее количество врачей для расчета - 6. В первый месяц - 25% от выбранного кол-ва, '
                            'второй - 50%, третий - 75%. Со второго квартала - 100% от планового кол-ва.')
         with col2:
-            st.slider("Прирост упак. (мес-к-мес)", min_value=0, value=15, max_value=50,
+            st.slider("Прирост упак. (мес-к-мес)", min_value=0, value=10, max_value=50,
                       key='pack_growth',
                       help='Расчетный прирост продаж со второго квартала, каждый последующий месяц',
                       format='%d%%')
@@ -386,7 +385,7 @@ with st.container():
         min_b = -10000 if profit_sum > 0 else profit_sum * 1.8
         max_b = revenue_sum * 1.2
         fig.update_layout(
-            title="Profit and loss statement 2024",
+            title="P&L 2024",
             yaxis_range=[min_b, max_b],
             showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
@@ -418,9 +417,13 @@ st.header('Исходные данные. Суммы указаны в тыс. �
 # df.loc['Column_Total']= df.sum(numeric_only=True, axis=0)
 
 
-df.loc[df.shape[0]] = [np.nan for col_num in range(1,df.shape[1]+1)]
-df.iloc[df.shape[0]-1,[1,2,3,4,5,6,7,8,9,10,11,12]] = df.iloc[:,[1,2,3,4,5,6,7,8,9,10,11,12]].sum(axis=0)
+df.loc[df.shape[0]] = [np.nan for col_num in range(1, df.shape[1] + 1)]
+df.iloc[df.shape[0] - 1,
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]] = df.iloc[:, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]].sum(axis=0)
 df.at[12, 'rolling_profit'] = ''
+df = df.set_index('date')
+# df.columns = ['дата', 'выручка', 'COGS', 'оклад', 'предст.расх.', 'бонус кв.', 'бонус год',
+#                'поддерж. OPEX', 'initial_event', 'supporting_opex', 'прибыль', 'прибыль_']
 
 st.write(df)
 
