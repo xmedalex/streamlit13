@@ -392,8 +392,9 @@ with st.container():
 
     with col2:
         st.subheader("По месяцам")
-        rev_prof, prof = st.tabs(['Выручка/прибыль', 'Прибыль'])
+        rev_prof, prof, packs = st.tabs(['Выручка/прибыль', 'Прибыль', 'Упаковки'])
         with rev_prof:
+
             profit_list = df['profit'].tolist()
 
             x = month_name
@@ -439,6 +440,27 @@ with st.container():
                 yaxis_range=[min(df['profit'])*4, max(df['profit'])*4],
                 showlegend=False)
             st.plotly_chart(fig, use_container_width=True)
+        with packs:
+            packs_sum_str = f"{packs_sum:,}".replace(',', ' ')
+            x = month_name
+
+            fig = go.Figure(go.Bar(x=x, y=df['packs'].tolist(), name='Profit',
+                            text = df['packs'].tolist()))
+            # fig.add_trace(go.Bar(x=x, y=transform_list(revenue_without_VAT_list, reverse_sign=False), name='Revenue'))
+
+            # markers, line = fig.data
+            # fig.data = line, markers
+
+            min_a = -100
+            max_a = max(df['packs']) * 1.3
+
+            # fig.update_layout(barmode='stack')
+            fig.update_layout(
+                title=f'Всего упаковок: {packs_sum_str}',
+                yaxis_range=[min_a, max_a],
+                showlegend=False)
+            st.plotly_chart(fig, use_container_width=True)
+
 
 st.write('---')
 st.header('Исходные данные. Суммы указаны в тыс. рублей')
