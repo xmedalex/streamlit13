@@ -391,25 +391,54 @@ with st.container():
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
-        profit_list = df['profit'].tolist()
-        st.subheader("Выручка/прибыль по месяцам")
-        x = month_name
+        st.subheader("По месяцам")
+        rev_prof, prof = st.tabs(['Выручка/прибыль', 'Прибыль'])
+        with rev_prof:
+            profit_list = df['profit'].tolist()
 
-        fig = go.Figure(go.Bar(x=x, y=profit_list, name='Profit'))
-        fig.add_trace(go.Bar(x=x, y=transform_list(revenue_without_VAT_list, reverse_sign=False), name='Revenue'))
+            x = month_name
 
-        markers, line = fig.data
-        fig.data = line, markers
+            fig = go.Figure(go.Bar(x=x, y=profit_list, name='Profit'))
+            fig.add_trace(go.Bar(x=x, y=transform_list(revenue_without_VAT_list, reverse_sign=False), name='Revenue'))
 
-        min_a = min(profit_list) * 1, 5
-        max_a = max(revenue_without_VAT_list) * 1, 5
+            markers, line = fig.data
+            fig.data = line, markers
 
-        # fig.update_layout(barmode='stack')
-        fig.update_layout(
-            title="тыс. руб. без НДС",
-            yaxis_range=[min_a, max_a],
-            showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+            min_a = min(profit_list) * 1, 5
+            max_a = max(revenue_without_VAT_list) * 1, 5
+
+            # fig.update_layout(barmode='stack')
+            fig.update_layout(
+                title="тыс. руб. без НДС",
+                yaxis_range=[min_a, max_a],
+                showlegend=False)
+            st.plotly_chart(fig, use_container_width=True)
+        with prof:
+            fig = go.Figure(go.Waterfall(
+                name="20", orientation="v",
+                measure=["relative", "relative", "relative", "relative", "relative", 'relative',
+                         "relative", "relative", "relative", "relative", "relative", "relative"
+                         "total"],
+                x=[*month_name, 'total'],
+                textposition="outside",
+                text=[*df['profit'].tolist(), profit_sum],
+                y=[*df['profit'].tolist(), -profit_sum],
+                # decreasing={"marker": {"color": "Maroon"}},
+                # increasing={"marker": {"color": "Teal"}},
+                # totals = {"marker":{"color":"red"}} if profit_sum < 0 else {"marker":{"color":"green"}},
+                connector={"line": {"color": "rgb(63, 63, 63)"}},
+            ))
+
+            # title_dir = "Общая прибыль" if profit_sum > 0 else "Общий убыток"
+            # sum_a = f"{profit_sum:,}".replace(',', ' ')
+            # title = f"{title_dir}:   {sum_a} тыс. руб"
+            # st.subheader(title)
+
+            fig.update_layout(
+                # title="Прибыль по ме",
+                yaxis_range=[min(df['profit'])*4, max(df['profit'])*4],
+                showlegend=False)
+            st.plotly_chart(fig, use_container_width=True)
 
 st.write('---')
 st.header('Исходные данные. Суммы указаны в тыс. рублей')
